@@ -1,0 +1,25 @@
+# Requirements for Professional RNA Analysis Bioinformatics
+# Python 3.8+ required
+
+# Core dependencies
+biopython>=1.81
+pandas>=2.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+Pillow>=10.0.0
+scipy>=1.10.0
+
+# GUI dependencies
+ttkbootstrap>=1.10.1
+
+# PDF/Excel report generation
+reportlab>=4.0.0
+openpyxl>=3.1.0
+XlsxWriter>=3.1.0
+
+# Additional utilities
+python-dateutil>=2.8.2
+pytz>=2023.3
+
+# Optional but recommended
+seaborn>=0.12.0
