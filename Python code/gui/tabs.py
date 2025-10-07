@@ -24,7 +24,7 @@ from gui.dialogs import sequence_converter_window, ask_string, ask_integer
 class EnhancedDNAToolGUI:
     def __init__(self, root):
         self.root = root
-        root.title('Professional RNA Amalysis Bioinformatics')
+        root.title('Professional RNA Analysis Bioinformatics')
         root.geometry('1400x900')
         self.session = {}
         self.results = {}
@@ -1094,7 +1094,7 @@ Molecular Weight: {result['basic_stats']['molecular_weight']:.2f} Da
 
 
     def show_help(self):
-        help_text = """Professional DNA/RNA Bioinformatics Suite - User Guide
+        help_text = """Professional RNA Analysis Bioinformatics - User Guide
 
 MAIN FEATURES:
 Comprehensive sequence analysis
@@ -1111,8 +1111,7 @@ USAGE:
 
 
     def show_about(self):
-        about_text = """Professional DNA/RNA Bioinformatics Suite
-Version 2.0
+        about_text = """Professional RNA Analysis Bioinformatics
 
 A comprehensive toolkit for DNA/RNA sequence analysis
 designed for research and educational purposes.
