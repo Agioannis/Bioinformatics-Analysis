@@ -5,47 +5,19 @@ from typing import List, Dict
 from Bio.Seq import Seq
 
 def _bases_match(base1: str, base2: str) -> bool:
-    """
-    Check if two DNA bases match, treating N as a wildcard
 
-    Parameters:
-    - base1, base2: Single nucleotide characters
-
-    Returns:
-    True if bases match (including when either is N), False otherwise
-    """
     if base1 == 'N' or base2 == 'N':
         return True  # N matches any base
     return base1 == base2
 
 def _patterns_match(pattern1: str, pattern2: str) -> bool:
-    """
-    Check if two DNA patterns match, treating N as wildcards
 
-    Parameters:
-    - pattern1, pattern2: DNA sequence strings of same length
-
-    Returns:
-    True if patterns match (with N as wildcards), False otherwise
-    """
     if len(pattern1) != len(pattern2):
         return False
     return all(_bases_match(b1, b2) for b1, b2 in zip(pattern1, pattern2))
 
 def find_tandem_repeats(seq: Seq, min_period=2, max_period=10, min_repeats=3, max_results=50) -> List[Dict]:
-    """
-    Find tandem repeats in a DNA sequence
 
-    Parameters:
-    - seq: BioPython Seq object
-    - min_period: minimum repeat unit length (default 2)
-    - max_period: maximum repeat unit length (default 10)
-    - min_repeats: minimum number of consecutive repeats (default 3)
-    - max_results: maximum number of results to return (default 50)
-
-    Returns:
-    List of dictionaries containing repeat information
-    """
     try:
         sequence = str(seq).upper()
         repeats = []
@@ -112,19 +84,7 @@ def find_tandem_repeats(seq: Seq, min_period=2, max_period=10, min_repeats=3, ma
         return []
 
 def find_imperfect_repeats(seq: Seq, min_period=2, max_period=6, min_repeats=3, max_mismatches=1) -> List[Dict]:
-    """
-    Find imperfect tandem repeats allowing for mismatches
 
-    Parameters:
-    - seq: BioPython Seq object
-    - min_period: minimum repeat unit length
-    - max_period: maximum repeat unit length
-    - min_repeats: minimum number of repeats
-    - max_mismatches: maximum allowed mismatches per repeat unit
-
-    Returns:
-    List of dictionaries containing imperfect repeat information
-    """
     try:
         sequence = str(seq).upper()
         imperfect_repeats = []
