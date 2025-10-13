@@ -16,6 +16,4 @@ Professional RNA Analysis Bioinformatics
 
 **Basic User Guide**
 
-[![Watch the video](https://img.youtube.com/vi/RLDB_0Sb2Zk/maxresdefault.jpg)](https://youtu.be/RLDB_0Sb2Zk)
-
-### [Full Video](https://youtu.be/RLDB_0Sb2Zk)
+<p><iframe width="560" height="315" src="https://www.youtube.com/embed/RLDB_0Sb2Zk" title="" frameBorder="0"   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"  allowFullScreen><br>Powered by <a href="https://youtubeembedcode.com">youtube embed code generator</a> and <a href=“https://snabblan.io/">tsnabblån utan uc</a></iframe></p>
