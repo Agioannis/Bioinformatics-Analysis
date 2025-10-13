@@ -10,8 +10,8 @@ Professional RNA Analysis Bioinformatics
 
 Installation Guide Video
 
-https://www.youtube.com/watch?v=CjMKF5wWLFA
+[https://www.youtube.com/watch?v=CjMKF5wWLFA](https://youtu.be/CjMKF5wWLFA?si=ihluby9H2qQ0uDvL)
 
 Basic User Guide
 
-https://youtu.be/RLDB_0Sb2Zk
+[https://youtu.be/RLDB_0Sb2Zk](https://youtu.be/RLDB_0Sb2Zk?si=HNGwQ05knoGtngru)
