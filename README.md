@@ -1,11 +1,12 @@
-Professional RNA Analysis Bioinformatics
+**Professional RNA Analysis Bioinformatics**
 
-Περιγραφή
+**Περιγραφή**
+
 Αυτό το αποθετήριο περιέχει τον πλήρη κώδικα Python και το εκτελέσιμο (.exe) αρχείο της εφαρμογής "Professional RNA Analysis Bioinformatics". Το πρόγραμμα αναπτύχθηκε στο πλαίσιο πτυχιακής εργασίας για την αυτοματοποιημένη ανάλυση και οπτικοποίηση γονιδιωματικών δεδομένων.
 
-Περιεχόμενα
-Κώδικας σε Python με modular δομή
+**Περιεχόμενα**
 
+Κώδικας σε Python με modular δομή
 Εκτελέσιμο αρχείο (.exe) για εύκολη χρήση χωρίς απαίτηση εγκατάστασης Python
 
 **Installation Guide Video**
