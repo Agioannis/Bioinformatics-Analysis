@@ -8,8 +8,8 @@ Professional RNA Analysis Bioinformatics
 
 Εκτελέσιμο αρχείο (.exe) για εύκολη χρήση χωρίς απαίτηση εγκατάστασης Python
 
-**Installation Guide Video
-**
+**Installation Guide Video**
+
 [![Watch the video](https://img.youtube.com/vi/CjMKF5wWLFA/maxresdefault.jpg)](https://youtu.be/CjMKF5wWLFA)
 
 ### [Full Video](https://youtu.be/CjMKF5wWLFA)
