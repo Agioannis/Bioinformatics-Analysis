@@ -291,7 +291,7 @@ def generate_excel_report(results, output_dir):
         with pd.ExcelWriter(filename, engine='xlsxwriter') as writer:
             workbook = writer.book
 
-            # Define enhanced formats for styling
+            # styling
             title_format = workbook.add_format({
                 'bold': True,
                 'font_size': 18,
@@ -345,7 +345,7 @@ def generate_excel_report(results, output_dir):
                 'align': 'center'
             })
 
-            # Calculate comprehensive statistics
+            # comprehensive statistics
             lengths = [result['basic_stats']['length'] for result in results.values()]
             gc_contents = [result['basic_stats']['gc_content'] for result in results.values()]
             mol_weights = [result['basic_stats']['molecular_weight'] for result in results.values()]
@@ -354,18 +354,16 @@ def generate_excel_report(results, output_dir):
             g_counts = [result['basic_stats']['G'] for result in results.values()]
             c_counts = [result['basic_stats']['C'] for result in results.values()]
 
-            # Executive Summary sheet with enhanced data
             summary_sheet = workbook.add_worksheet('Executive Summary')
             summary_sheet.merge_range('A1:E1', '🧬 Professional DNA/RNA Analysis Report', title_format)
 
-            # Report metadata
+            # metadata
             summary_sheet.write(3, 0, 'Report Generation Information:', subtitle_format)
             summary_sheet.write(4, 0, f'Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
             summary_sheet.write(5, 0, f'Number of sequences analyzed: {len(results)}')
             summary_sheet.write(6, 0, 'Analysis Software: Professional DNA/RNA Bioinformatics Suite v2.0')
             summary_sheet.write(7, 0, 'Platform: Python with BioPython, NumPy, Pandas, matplotlib')
 
-            # Key findings with enhanced statistics
             summary_sheet.write(9, 0, 'Key Statistical Findings:', subtitle_format)
             summary_sheet.write(10, 0, f'• Total sequences analyzed: {len(results)}')
             summary_sheet.write(11, 0, f'• Length range: {min(lengths):,} - {max(lengths):,} bp')
@@ -377,7 +375,6 @@ def generate_excel_report(results, output_dir):
             summary_sheet.write(17, 0, f'• Average molecular weight: {np.mean(mol_weights):.2f} Da')
             summary_sheet.write(18, 0, f'• Total molecular weight: {sum(mol_weights):.2f} Da')
 
-            # Nucleotide composition summary
             summary_sheet.write(20, 0, 'Overall Nucleotide Composition:', subtitle_format)
             total_nucleotides = sum(a_counts) + sum(t_counts) + sum(g_counts) + sum(c_counts)
             summary_sheet.write(21, 0, f'• Total A: {sum(a_counts):,} ({sum(a_counts)/total_nucleotides*100:.2f}%)')
@@ -386,7 +383,7 @@ def generate_excel_report(results, output_dir):
             summary_sheet.write(24, 0, f'• Total C: {sum(c_counts):,} ({sum(c_counts)/total_nucleotides*100:.2f}%)')
             summary_sheet.write(25, 0, f'• AT/GC Ratio: {(sum(a_counts) + sum(t_counts))/(sum(g_counts) + sum(c_counts)):.3f}')
 
-            # Basic Statistics Overview sheet (enhanced version)
+            # Φύλλο Επισκόπησης Βασικών Στατιστικών
             overview_data = []
             for seq_id, result in results.items():
                 stats = result['basic_stats']
@@ -419,15 +416,14 @@ def generate_excel_report(results, output_dir):
             overview_df = pd.DataFrame(overview_data)
             overview_df.to_excel(writer, sheet_name='Basic Statistics Overview', index=False)
 
-            # Format Basic Statistics Overview sheet
+            # Επισκόπησης Βασικών Στατιστικών
             overview_sheet = writer.sheets['Basic Statistics Overview']
             for col_num, value in enumerate(overview_df.columns.values):
                 overview_sheet.write(0, col_num, value, header_format)
 
-            # Apply conditional formatting and data formats
-            percentage_cols = [6, 7, 8, 9, 10, 11]  # A%, T%, G%, C%, GC%, AT%
-            ratio_cols = [12, 15]  # AT/GC ratio, Purine/Pyrimidine ratio
-            weight_cols = [16, 17]  # Molecular weights
+            percentage_cols = [6, 7, 8, 9, 10, 11] 
+            ratio_cols = [12, 15]  # AT/GC, Πουρινών/Πυριμιδινών
+            weight_cols = [16, 17]  # Μοριακό Βάρος
             count_cols = [1, 2, 3, 4, 5, 13, 14, 18, 19, 22]  # Count columns
 
             for row in range(1, len(overview_df) + 1):
@@ -435,12 +431,11 @@ def generate_excel_report(results, output_dir):
                     value = overview_df.iloc[row-1, col]
                     if col in percentage_cols:
                         overview_sheet.write(row, col, value, percentage_format)
-                    elif col in weight_cols or col in [20, 21]:  # Complexity scores
+                    elif col in weight_cols or col in [20, 21]: 
                         overview_sheet.write(row, col, value, number_format)
                     elif col in count_cols:
                         overview_sheet.write(row, col, value, integer_format)
                     elif col in ratio_cols:
-                        # Color code ratios
                         if value < 0.5 or value > 2.0:
                             overview_sheet.write(row, col, value, warning_format)
                         else:
@@ -448,13 +443,12 @@ def generate_excel_report(results, output_dir):
                     else:
                         overview_sheet.write(row, col, value, data_format)
 
-            # Detailed Nucleotide Analysis sheet
+            # Ανάλυση Νουκλεοτιδίων
             detailed_nucleotide_data = []
             for seq_id, result in results.items():
                 stats = result['basic_stats']
                 length = stats['length']
 
-                # Calculate dinucleotide and trinucleotide frequencies (simplified for demo)
                 dinucleotides = ['AA', 'AT', 'AG', 'AC', 'TA', 'TT', 'TG', 'TC', 'GA', 'GT', 'GG', 'GC', 'CA', 'CT', 'CG', 'CC']
 
                 detailed_nucleotide_data.append({
@@ -483,12 +477,12 @@ def generate_excel_report(results, output_dir):
             detailed_nucleotide_df = pd.DataFrame(detailed_nucleotide_data)
             detailed_nucleotide_df.to_excel(writer, sheet_name='Detailed Nucleotide Analysis', index=False)
 
-            # Format Detailed Nucleotide Analysis sheet
+            # Ανάλυση Νουκλεοτιδίων
             detailed_nucleotide_sheet = writer.sheets['Detailed Nucleotide Analysis']
             for col_num, value in enumerate(detailed_nucleotide_df.columns.values):
                 detailed_nucleotide_sheet.write(0, col_num, value, header_format)
 
-            # Quality Control Assessment sheet (enhanced)
+            # Αξιολόγηση Ποιοτικού Ελέγχου
             qc_data = []
             for seq_id, result in results.items():
                 stats = result['basic_stats']
@@ -496,7 +490,6 @@ def generate_excel_report(results, output_dir):
                 warnings = []
                 quality_score = 100
 
-                # Length checks
                 if stats['length'] < 50:
                     issues.append("Very short sequence (< 50 bp)")
                     quality_score -= 30
@@ -507,7 +500,6 @@ def generate_excel_report(results, output_dir):
                     warnings.append("Very long sequence (> 100kb)")
                     quality_score -= 5
 
-                # GC content checks
                 if stats['gc_content'] < 20:
                     issues.append("Very low GC content (< 20%)")
                     quality_score -= 25
@@ -521,7 +513,7 @@ def generate_excel_report(results, output_dir):
                     warnings.append("High GC content (> 70%)")
                     quality_score -= 10
 
-                # Nucleotide composition checks
+                # Σύνθεση Νουκλεοτιδίων
                 total_standard = stats['A'] + stats['T'] + stats['G'] + stats['C']
                 if total_standard < stats['length']:
                     non_standard_count = stats['length'] - total_standard
@@ -533,7 +525,7 @@ def generate_excel_report(results, output_dir):
                         warnings.append(f"Contains non-standard nucleotides ({non_standard_percent:.1f}%)")
                         quality_score -= 5
 
-                # Complexity checks
+                # Έλεγχοι Πολυπλοκότητας
                 complexity = result.get('complexity', {})
                 if complexity:
                     entropy = complexity.get('shannon_entropy', 0)
@@ -544,7 +536,7 @@ def generate_excel_report(results, output_dir):
                         issues.append("Very low sequence complexity")
                         quality_score -= 25
 
-                # Determine overall status
+                # Καθορισμός γενικής κατάστασης
                 if quality_score >= 90:
                     status = "EXCELLENT"
                 elif quality_score >= 75:
@@ -576,12 +568,11 @@ def generate_excel_report(results, output_dir):
             qc_df = pd.DataFrame(qc_data)
             qc_df.to_excel(writer, sheet_name='Quality Control Assessment', index=False)
 
-            # Format Quality Control sheet with conditional formatting
+            # Μορφοποίηση Φύλλου Ποιοτικού Ελέγχου με συνθήκη μορφοποίησης
             qc_sheet = writer.sheets['Quality Control Assessment']
             for col_num, value in enumerate(qc_df.columns.values):
                 qc_sheet.write(0, col_num, value, header_format)
 
-            # Status color coding
             excellent_format = workbook.add_format({'bg_color': '#00B050', 'font_color': 'white', 'border': 1, 'align': 'center'})
             good_format_qc = workbook.add_format({'bg_color': '#92D050', 'border': 1, 'align': 'center'})
             acceptable_format = workbook.add_format({'bg_color': '#FFFF00', 'border': 1, 'align': 'center'})
@@ -589,10 +580,10 @@ def generate_excel_report(results, output_dir):
             failed_format = workbook.add_format({'bg_color': '#C00000', 'font_color': 'white', 'border': 1, 'align': 'center'})
 
             for row in range(1, len(qc_df) + 1):
-                status = qc_df.iloc[row-1, 8]  # Quality_Status column
+                status = qc_df.iloc[row-1, 8]  
                 for col in range(len(qc_df.columns)):
                     value = qc_df.iloc[row-1, col]
-                    if col == 8:  # Quality status column
+                    if col == 8:  
                         if status == 'EXCELLENT':
                             qc_sheet.write(row, col, value, excellent_format)
                         elif status == 'GOOD':
@@ -603,26 +594,26 @@ def generate_excel_report(results, output_dir):
                             qc_sheet.write(row, col, value, poor_format)
                         else:
                             qc_sheet.write(row, col, value, failed_format)
-                    elif col in [2, 4]:  # Percentage columns
+                    elif col in [2, 4]: 
                         qc_sheet.write(row, col, value, percentage_format)
-                    elif col in [5, 7]:  # Decimal columns
+                    elif col in [5, 7]: 
                         qc_sheet.write(row, col, value, number_format)
-                    elif col in [1, 3, 6, 9, 10]:  # Integer columns
+                    elif col in [1, 3, 6, 9, 10]:
                         qc_sheet.write(row, col, value, integer_format)
                     else:
                         qc_sheet.write(row, col, value, data_format)
 
-            # Comparative Analysis sheet (enhanced)
+            # Φύλλο Συγκριτικής Ανάλυσης
             if len(results) > 1:
                 comp_data = []
                 seq_ids = list(results.keys())
                 for i, seq1_id in enumerate(seq_ids):
                     stats1 = results[seq1_id]['basic_stats']
                     for j, seq2_id in enumerate(seq_ids):
-                        if i < j:  # Avoid duplicate comparisons
+                        if i < j:  # Αποφυγή διπλών συγκρίσεων
                             stats2 = results[seq2_id]['basic_stats']
 
-                            # Calculate comprehensive similarity metrics
+                            # υπολογισμό λεπτομερών μετρικών
                             length_diff = abs(stats1['length'] - stats2['length'])
                             length_similarity = 1 - length_diff/max(stats1['length'], stats2['length'])
 
@@ -632,12 +623,12 @@ def generate_excel_report(results, output_dir):
                             mw_diff = abs(stats1['molecular_weight'] - stats2['molecular_weight'])
                             mw_similarity = 1 - mw_diff/max(stats1['molecular_weight'], stats2['molecular_weight'])
 
-                            # Nucleotide composition similarity
+                            # Ομοιότητα σύνθεσης νουκλεοτιδίων
                             comp1 = np.array([stats1['A'], stats1['T'], stats1['G'], stats1['C']]) / stats1['length']
                             comp2 = np.array([stats2['A'], stats2['T'], stats2['G'], stats2['C']]) / stats2['length']
                             composition_similarity = 1 - np.sum(np.abs(comp1 - comp2)) / 2
 
-                            # Overall similarity score
+                            # Συνολική βαθμολογία ομοιότητας
                             overall_similarity = np.mean([length_similarity, gc_similarity, mw_similarity, composition_similarity])
 
                             comp_data.append({
@@ -664,12 +655,12 @@ def generate_excel_report(results, output_dir):
                     comp_df = pd.DataFrame(comp_data)
                     comp_df.to_excel(writer, sheet_name='Comparative Analysis', index=False)
 
-                    # Format Comparative Analysis sheet
+                    # Μορφοποίηση φύλλου συγκριτικής ανάλυσης
                     comp_sheet = writer.sheets['Comparative Analysis']
                     for col_num, value in enumerate(comp_df.columns.values):
                         comp_sheet.write(0, col_num, value, header_format)
 
-            # Sequence Features sheet
+            # Φύλλο Χαρακτηριστικών Αλληλουχίας
             features_data = []
             for seq_id, result in results.items():
                 stats = result['basic_stats']
@@ -694,10 +685,10 @@ def generate_excel_report(results, output_dir):
             features_df = pd.DataFrame(features_data)
             features_df.to_excel(writer, sheet_name='Sequence Features', index=False)
 
-            # Statistical Summary sheet
+            # Φύλλο Στατιστικής Σύνοψης
             stats_summary_data = []
 
-            # Overall statistics
+            # Γενικά Στατιστικά
             stats_summary_data.extend([
                 {'Statistic': 'Total Sequences', 'Value': len(results), 'Unit': 'count'},
                 {'Statistic': 'Total Length', 'Value': sum(lengths), 'Unit': 'bp'},
@@ -729,7 +720,7 @@ def generate_excel_report(results, output_dir):
             stats_summary_df = pd.DataFrame(stats_summary_data)
             stats_summary_df.to_excel(writer, sheet_name='Statistical Summary', index=False)
 
-            # Analysis Methodology sheet (enhanced)
+            # Φύλλο Μεθοδολογίας Ανάλυσης
             methodology_sheet = workbook.add_worksheet('Analysis Methodology')
             methodology_sheet.merge_range('A1:C1', 'Analysis Methodology & Technical Details', title_format)
 
@@ -786,7 +777,7 @@ def generate_excel_report(results, output_dir):
                 methodology_sheet.write(row, 0, item)
                 row += 1
 
-            # Plot References sheet
+            # Φύλλο Αναφορών Διαγραμμάτων
             plot_refs_sheet = workbook.add_worksheet('Plot References')
             plot_refs_sheet.merge_range('A1:C1', 'Generated Plot Files Reference', title_format)
 
@@ -799,31 +790,31 @@ def generate_excel_report(results, output_dir):
                 ['Nucleotide Boxplot', 'nucleotide_boxplot.png', 'Distribution analysis of nucleotides'],
                 ['Molecular Weight', 'molecular_weight.png', 'Molecular weight comparison'],
                 ['Correlation Matrix', 'correlation_matrix.png', 'Correlation analysis of metrics'],
-                ['', '', ''],  # Separator
+                ['', '', ''],  
                 ['Individual Plots', '', ''],
             ]
 
-            # Add individual plot references
+            # Προσθήκη αναφορών ξεχωριστών διαγραμμάτων
             for seq_id in results.keys():
                 plot_info_data.append([f'{seq_id} Analysis', f'individual/{seq_id}_analysis.png', f'Detailed analysis for {seq_id}'])
                 plot_info_data.append([f'{seq_id} Complexity', f'individual/{seq_id}_complexity.png', f'Complexity analysis for {seq_id}'])
 
-            # Write plot references
+            # Εγγραφή αναφορών διαγραμμάτων
             for row_num, row_data in enumerate(plot_info_data):
                 for col_num, cell_data in enumerate(row_data):
-                    if row_num == 0:  # Header
+                    if row_num == 0:  
                         plot_refs_sheet.write(row_num, col_num, cell_data, header_format)
-                    elif row_data[0] == '' and row_data[1] == '':  # Separator or section header
+                    elif row_data[0] == '' and row_data[1] == '':
                         plot_refs_sheet.write(row_num, col_num, cell_data, subtitle_format)
                     else:
                         plot_refs_sheet.write(row_num, col_num, cell_data, data_format)
 
-            # Auto-fit columns for all sheets
+            # Αυτόματη προσαρμογή στηλών
             for sheet_name in writer.sheets:
                 worksheet = writer.sheets[sheet_name]
-                worksheet.set_column('A:A', 25)  # Sequence ID column
-                worksheet.set_column('B:Z', 15)  # Other columns
-                worksheet.set_column('AA:ZZ', 12)  # Extended columns
+                worksheet.set_column('A:A', 25)
+                worksheet.set_column('B:Z', 15)  
+                worksheet.set_column('AA:ZZ', 12)
 
         return filename
 
@@ -976,3 +967,4 @@ def create_comprehensive_report(results, output_dir, *args, **kwargs):
         logging.error(f"Error creating comprehensive report: {e}")
 
         raise
+
