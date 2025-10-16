@@ -1,41 +1,37 @@
-
 import logging
 import re
 from typing import List, Dict
 from Bio.Seq import Seq
 
 def _bases_match(base1: str, base2: str) -> bool:
-
+    # Ελέγχει αν δύο βάσεις ταιριάζουν (N ταιριάζει με οποιαδήποτε βάση)
     if base1 == 'N' or base2 == 'N':
-        return True  # N matches any base
+        return True  # Το N ταιριάζει με οποιαδήποτε βάση
     return base1 == base2
 
 def _patterns_match(pattern1: str, pattern2: str) -> bool:
-
+    # Ελέγχει αν δύο μοτίβα νουκλεοτιδίων ταιριάζουν θέση προς θέση
     if len(pattern1) != len(pattern2):
         return False
     return all(_bases_match(b1, b2) for b1, b2 in zip(pattern1, pattern2))
 
 def find_tandem_repeats(seq: Seq, min_period=2, max_period=10, min_repeats=3, max_results=50) -> List[Dict]:
-
+    # Βρίσκει τα ενωμένα επαναλαμβανόμενα μοτίβα (tandem repeats) σε μια ακολουθία DNA
     try:
         sequence = str(seq).upper()
         repeats = []
 
-        # Skip very short sequences
+        # Αγνοεί πολύ μικρές ακολουθίες
         if len(sequence) < min_period * min_repeats:
             return []
 
-        # Find repeats for each period length
+        # Αναζητά επαναλήψεις για κάθε φάσμα περιόδου
         for period in range(min_period, min(max_period + 1, len(sequence) // min_repeats + 1)):
-            # Sliding window approach
+            # μοτίβο με παράθυρο sliding
             for start in range(len(sequence) - period * min_repeats + 1):
                 pattern = sequence[start:start + period]
 
-                # Handle patterns with ambiguous bases (N)
-                # Instead of skipping, we'll treat N as a wildcard that can match any base
-
-                # Count consecutive repeats
+                # Μετρά διαδοχικές επαναλήψεις
                 repeat_count = 1
                 pos = start + period
 
@@ -43,15 +39,15 @@ def find_tandem_repeats(seq: Seq, min_period=2, max_period=10, min_repeats=3, ma
                     repeat_count += 1
                     pos += period
 
-                # Check if meets minimum repeat criteria
+                # Ελέγχει αν πληροί τα κριτήρια ελάχιστων επαναλήψεων
                 if repeat_count >= min_repeats:
                     end_pos = start + (repeat_count * period)
 
-                    # Check for overlaps with existing repeats
+                    # Ελέγχει για επικαλύψεις με υπάρχουσες επαναλήψεις
                     overlap = False
                     for existing in repeats:
                         if not (end_pos <= existing['start'] or start >= existing['end']):
-                            # If new repeat is longer, remove the existing one
+                            # Αν η νέα επανάληψη είναι μεγαλύτερη, αφαιρεί την παλιά
                             if (end_pos - start) > (existing['end'] - existing['start']):
                                 repeats.remove(existing)
                                 break
@@ -62,29 +58,28 @@ def find_tandem_repeats(seq: Seq, min_period=2, max_period=10, min_repeats=3, ma
                     if not overlap:
                         repeat_info = {
                             'pattern': pattern,
-                            'start': start + 1,  # 1-based indexing
+                            'start': start + 1,
                             'end': end_pos,
                             'repeat_count': repeat_count,
                             'total_length': end_pos - start,
                             'period': period,
                             'sequence': sequence[start:end_pos],
-                            'purity': 1.0,  # Perfect repeats have 100% purity
+                            'purity': 1.0,  # Τέλειες επαναλήψεις
                             'type': _classify_repeat_type(pattern, period)
                         }
                         repeats.append(repeat_info)
 
-        # Sort by total length (descending) and then by start position
+        # Ταξινόμηση κατά συνολικό μήκος (φθίνουσα) και μετά κατά θέση έναρξης
         repeats.sort(key=lambda x: (-x['total_length'], x['start']))
 
-        # Return top results
         return repeats[:max_results]
 
     except Exception as e:
-        logging.warning(f"Tandem repeat analysis failed: {e}")
+        logging.warning(f"Ανάλυση επαναλήψεων απέτυχε: {e}")
         return []
 
 def find_imperfect_repeats(seq: Seq, min_period=2, max_period=6, min_repeats=3, max_mismatches=1) -> List[Dict]:
-
+    # Βρίσκει μη τέλειες επαναλήψεις με επιτρεπτές αποκλίσεις (mismatches)
     try:
         sequence = str(seq).upper()
         imperfect_repeats = []
@@ -95,8 +90,6 @@ def find_imperfect_repeats(seq: Seq, min_period=2, max_period=6, min_repeats=3, 
         for period in range(min_period, min(max_period + 1, len(sequence) // min_repeats + 1)):
             for start in range(len(sequence) - period * min_repeats + 1):
                 pattern = sequence[start:start + period]
-
-                # Handle patterns with ambiguous bases (N) as wildcards
 
                 repeat_count = 1
                 total_mismatches = 0
@@ -131,32 +124,22 @@ def find_imperfect_repeats(seq: Seq, min_period=2, max_period=6, min_repeats=3, 
                     }
                     imperfect_repeats.append(repeat_info)
 
-        # Remove overlaps and sort
+        # Αφαιρεί επικαλύψεις και ταξινομεί
         imperfect_repeats = _remove_overlapping_repeats(imperfect_repeats)
         imperfect_repeats.sort(key=lambda x: (-x['total_length'], x['start']))
 
         return imperfect_repeats[:20]
 
     except Exception as e:
-        logging.warning(f"Imperfect repeat analysis failed: {e}")
+        logging.warning(f"Ανάλυση μη τέλειων επαναλήψεων απέτυχε: {e}")
         return []
 
 def find_microsatellites(seq: Seq, min_repeats=4) -> List[Dict]:
-    """
-    Find microsatellite repeats (1-6 bp repeat units)
-
-    Parameters:
-    - seq: BioPython Seq object
-    - min_repeats: minimum number of repeats
-
-    Returns:
-    List of microsatellite repeat information
-    """
     try:
         sequence = str(seq).upper()
         microsatellites = []
 
-        # Common microsatellite patterns
+        # Κοινά μοτίβα μικροδορυφόρων ανά μήκος μοτίβου
         patterns = {
             1: ['A', 'T', 'G', 'C'],
             2: ['AT', 'TA', 'GC', 'CG', 'AG', 'GA', 'CT', 'TC', 'AC', 'CA', 'TG', 'GT'],
@@ -168,7 +151,6 @@ def find_microsatellites(seq: Seq, min_repeats=4) -> List[Dict]:
 
         for period in range(1, 7):
             for pattern in patterns[period]:
-                # Find all occurrences using regex
                 regex_pattern = f'({re.escape(pattern)}){{{min_repeats},}}'
                 matches = re.finditer(regex_pattern, sequence, re.IGNORECASE)
 
@@ -191,46 +173,44 @@ def find_microsatellites(seq: Seq, min_repeats=4) -> List[Dict]:
                     }
                     microsatellites.append(microsatellite_info)
 
-        # Remove overlaps and sort
+        # Αφαιρεί επικαλύψεις και ταξινομεί
         microsatellites = _remove_overlapping_repeats(microsatellites)
         microsatellites.sort(key=lambda x: (-x['total_length'], x['start']))
 
         return microsatellites[:30]
 
     except Exception as e:
-        logging.warning(f"Microsatellite analysis failed: {e}")
+        logging.warning(f"Ανάλυση μικροδορυφόρων απέτυχε: {e}")
         return []
 
 def _classify_repeat_type(pattern: str, period: int) -> str:
-    """Classify the type of repeat based on pattern and period"""
+    # Κατηγοριοποιεί τον τύπο της επανάληψης βάσει του μοτίβου και της περιόδου
     if period == 1:
-        return f"Homopolymer ({pattern})"
+        return f"Ομοπολυμερές ({pattern})"
     elif period == 2:
-        return f"Dinucleotide ({pattern})"
+        return f"Δι-νουκλεοτιδικό ({pattern})"
     elif period == 3:
-        return f"Trinucleotide ({pattern})"
+        return f"Τρι-νουκλεοτιδικό ({pattern})"
     elif period == 4:
-        return f"Tetranucleotide ({pattern})"
+        return f"Τετρα-νουκλεοτιδικό ({pattern})"
     elif period == 5:
-        return f"Pentanucleotide ({pattern})"
+        return f"Πεντα-νουκλεοτιδικό ({pattern})"
     elif period == 6:
-        return f"Hexanucleotide ({pattern})"
+        return f"Εξα-νουκλεοτιδικό ({pattern})"
     else:
-        return f"Complex ({period}-mer)"
+        return f"Σύνθετο ({period}-mer)"
 
 def _remove_overlapping_repeats(repeats: List[Dict]) -> List[Dict]:
-    """Remove overlapping repeats, keeping the longest ones"""
+    # Αφαιρεί επικαλυπτόμενες επαναλήψεις, διατηρώντας τις μεγαλύτερες
     if not repeats:
         return []
 
-    # Sort by length (descending) to prioritize longer repeats
     sorted_repeats = sorted(repeats, key=lambda x: -x['total_length'])
     non_overlapping = []
 
     for repeat in sorted_repeats:
         overlap = False
         for existing in non_overlapping:
-            # Check for overlap
             if not (repeat['end'] <= existing['start'] or repeat['start'] >= existing['end']):
                 overlap = True
                 break
@@ -241,15 +221,7 @@ def _remove_overlapping_repeats(repeats: List[Dict]) -> List[Dict]:
     return non_overlapping
 
 def analyze_repeat_distribution(seq: Seq) -> Dict:
-    """
-    Analyze the overall distribution of repeats in a sequence
-
-    Parameters:
-    - seq: BioPython Seq object
-
-    Returns:
-    Dictionary with repeat distribution statistics
-    """
+    # Αναλύει τη συνολική κατανομή των επαναλήψεων σε μια ακολουθία
     try:
         all_repeats = find_tandem_repeats(seq, max_results=100)
         microsatellites = find_microsatellites(seq)
@@ -267,7 +239,6 @@ def analyze_repeat_distribution(seq: Seq) -> Dict:
         seq_length = len(str(seq))
         total_repeat_length = sum(repeat['total_length'] for repeat in all_repeats)
 
-        # Count repeat types
         repeat_types = {}
         period_counts = {}
 
@@ -289,14 +260,14 @@ def analyze_repeat_distribution(seq: Seq) -> Dict:
             'total_repeats': len(all_repeats),
             'repeat_coverage': (total_repeat_length / seq_length) * 100,
             'average_repeat_length': total_repeat_length / len(all_repeats),
-            'repeat_density': len(all_repeats) / (seq_length / 1000),  # per kb
+            'repeat_density': len(all_repeats) / (seq_length / 1000),  # ανά kb
             'most_common_period': most_common_period,
             'repeat_types': repeat_types,
             'microsatellites_found': len(microsatellites)
         }
 
     except Exception as e:
-        logging.warning(f"Repeat distribution analysis failed: {e}")
+        logging.warning(f"Ανάλυση κατανομής επαναλήψεων απέτυχε: {e}")
         return {
             'total_repeats': 0,
             'repeat_coverage': 0.0,
