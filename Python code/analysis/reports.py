@@ -20,14 +20,14 @@ def generate_pdf_report(results, output_dir):
         styles = getSampleStyleSheet()
         story = []
 
-        # Custom styles
+        # Προσαρμοσμένα στυλ
         title_style = ParagraphStyle(
             'CustomTitle',
             parent=styles['Heading1'],
             fontSize=24,
             spaceAfter=30,
             textColor=colors.darkblue,
-            alignment=1  # Center alignment
+            alignment=1 
         )
 
         heading_style = ParagraphStyle(
@@ -39,12 +39,12 @@ def generate_pdf_report(results, output_dir):
             spaceBefore=20
         )
 
-        # Title page
+         # Σελίδα τίτλου
         title = Paragraph("🧬 Professional DNA/RNA Analysis Report", title_style)
         story.append(title)
         story.append(Spacer(1, 30))
 
-        # Report metadata
+        # metadata αναφοράς
         metadata = f"""
         <para align="center">
         <b>Generated:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}<br/>
@@ -55,10 +55,10 @@ def generate_pdf_report(results, output_dir):
         story.append(Paragraph(metadata, styles['Normal']))
         story.append(Spacer(1, 30))
 
-        # Executive Summary
+        # Summary
         story.append(Paragraph("📋 Executive Summary", heading_style))
 
-        # Calculate summary statistics
+        # Υπολογισμός βασικών στατιστικών
         lengths = [result['basic_stats']['length'] for result in results.values()]
         gc_contents = [result['basic_stats']['gc_content'] for result in results.values()]
         mol_weights = [result['basic_stats']['molecular_weight'] for result in results.values()]
@@ -77,7 +77,7 @@ def generate_pdf_report(results, output_dir):
         story.append(Paragraph(summary_text, styles['Normal']))
         story.append(Spacer(1, 20))
 
-        # Summary Statistics Table
+        # Πίνακας συνοπτικών στατιστικών
         story.append(Paragraph("📊 Summary Statistics", heading_style))
         summary_data = [["Sequence ID", "Length (bp)", "A", "T", "G", "C", "GC%", "Mol. Weight (Da)"]]
 
@@ -110,7 +110,7 @@ def generate_pdf_report(results, output_dir):
         story.append(summary_table)
         story.append(PageBreak())
 
-        # Detailed Analysis for each sequence
+       # Λεπτομερής ανάλυση ανά ακολουθία
         story.append(Paragraph("🔬 Detailed Sequence Analysis", heading_style))
 
         for seq_id, result in results.items():
@@ -120,7 +120,7 @@ def generate_pdf_report(results, output_dir):
             seq_title = Paragraph(f"<b>Sequence: {seq_id}</b>", styles['Heading3'])
             story.append(seq_title)
 
-            # Basic statistics
+            # statistics
             basic_stats_data = [
                 ["Property", "Value", "Percentage"],
                 ["Length", f"{stats['length']:,} bp", "100%"],
@@ -146,7 +146,7 @@ def generate_pdf_report(results, output_dir):
             ]))
             story.append(basic_table)
 
-            # Additional analysis if available
+            # Επιπλέον αναλύσεις αν υπάρχουν
             if 'tandem_repeats' in result and result['tandem_repeats']:
                 story.append(Spacer(1, 10))
                 repeats_text = f"<b>Tandem Repeats Found:</b> {len(result['tandem_repeats'])}"
@@ -156,7 +156,6 @@ def generate_pdf_report(results, output_dir):
                 motifs_text = f"<b>Sequence Motifs Found:</b> {len(result['motifs'])}"
                 story.append(Paragraph(motifs_text, styles['Normal']))
 
-            # Complexity analysis if available
             if 'complexity' in result and result['complexity']:
                 complexity = result['complexity']
                 complexity_text = f"""
@@ -169,7 +168,7 @@ def generate_pdf_report(results, output_dir):
 
             story.append(Spacer(1, 20))
 
-        # Add visualizations if they exist
+        # visualizations
         plots_dir = os.path.join(output_dir, 'plots')
         joint_plots_dir = os.path.join(plots_dir, 'joint')
         individual_plots_dir = os.path.join(plots_dir, 'individual')
@@ -181,14 +180,12 @@ def generate_pdf_report(results, output_dir):
             if os.path.exists(joint_plots_dir):
                 story.append(Paragraph("🔗 Comparative Analysis Plots", styles['Heading3']))
 
-                # Dynamically fetch plot files from the directory
                 joint_plot_files = [f for f in os.listdir(joint_plots_dir) if f.endswith('.png')]
 
                 for plot_file in joint_plot_files:
                     plot_path = os.path.join(joint_plots_dir, plot_file)
                     if os.path.exists(plot_path):
                         try:
-                            # Extract title from filename (remove extension)
                             plot_title = os.path.splitext(plot_file)[0].replace('_', ' ').title()
                             story.append(Paragraph(f"<b>{plot_title}</b>", styles['Heading4']))
                             img = Image(plot_path, width=7*inch, height=5*inch)
@@ -197,7 +194,7 @@ def generate_pdf_report(results, output_dir):
                         except Exception as e:
                             logging.error(f"Error adding joint plot {plot_file}: {e}")
 
-            # Individual sequence plots
+            # sequence plots
             if os.path.exists(individual_plots_dir):
                 story.append(PageBreak())
                 story.append(Paragraph("🔬 Individual Sequence Analysis Plots", styles['Heading3']))
@@ -246,7 +243,6 @@ def generate_pdf_report(results, output_dir):
             elif stats['length'] > 100000:
                 seq_issues.append("Very long sequence (> 100kb)")
 
-            # Check for unusual nucleotide composition
             total_standard = stats['A'] + stats['T'] + stats['G'] + stats['C']
             if total_standard < stats['length']:
                 seq_issues.append(f"Contains {stats['length'] - total_standard} non-standard nucleotides")
@@ -259,7 +255,6 @@ def generate_pdf_report(results, output_dir):
         qc_text = "<br/>".join(qc_issues) if qc_issues else "All sequences passed quality control checks."
         story.append(Paragraph(qc_text, styles['Normal']))
 
-        # Methodology section
         story.append(Spacer(1, 30))
         story.append(Paragraph("🔬 Analysis Methodology", heading_style))
         methodology_text = f"""
@@ -276,7 +271,7 @@ def generate_pdf_report(results, output_dir):
         """
         story.append(Paragraph(methodology_text, styles['Normal']))
 
-        # Build the PDF
+        # Τελική κατασκευή και αποθήκευση PDF
         doc.build(story)
         return filename
 
@@ -979,4 +974,5 @@ def create_comprehensive_report(results, output_dir, *args, **kwargs):
         }
     except Exception as e:
         logging.error(f"Error creating comprehensive report: {e}")
+
         raise
